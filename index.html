@@ -2,15 +2,15 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>GHOST RADAR - DETEKSI HANTU</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TEST VISI MALAM</title>
     <style>
-        /* RESET & LOCK SCREEN */
+        /* SETUP DASAR */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            user-select: none; /* Gak bisa blok teks */
+            user-select: none;
             -webkit-tap-highlight-color: transparent;
         }
 
@@ -18,20 +18,20 @@
             width: 100%;
             height: 100%;
             background-color: #000;
-            color: #0f0;
-            font-family: 'Courier New', Courier, monospace;
-            overflow: hidden; /* Gak bisa scroll */
-            touch-action: none; /* Gak bisa zoom/pan */
+            color: #555; /* Abu gelap */
+            font-family: 'Courier New', monospace;
+            overflow: hidden;
+            touch-action: none;
         }
 
-        /* LAYER 1: HALAMAN DEPAN (HOOK) */
+        /* LAYAR 1: HOOK (TEMA SURAM) */
         #start-screen {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: radial-gradient(circle, #111 0%, #000 100%);
+            background: #000;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -40,254 +40,276 @@
             text-align: center;
         }
 
-        .radar-circle {
-            width: 250px;
-            height: 250px;
-            border: 2px solid #0f0;
-            border-radius: 50%;
-            position: relative;
-            margin-bottom: 30px;
-            box-shadow: 0 0 20px #0f0;
-        }
-
-        .radar-sweep {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 50%;
-            height: 2px;
-            background: linear-gradient(90deg, rgba(0,255,0,0), rgba(0,255,0,1));
-            transform-origin: 0 0;
-            animation: radar-spin 2s linear infinite;
-        }
-
-        @keyframes radar-spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
-
-        h1 {
-            color: #0f0;
+        .title-glitch {
             font-size: 2rem;
-            text-shadow: 0 0 10px #0f0;
-            margin-bottom: 10px;
+            color: #333;
+            text-shadow: 2px 0 #111;
+            animation: flicker 3s infinite;
+            letter-spacing: 5px;
+            margin-bottom: 50px;
+        }
+
+        .btn-creepy {
+            background: transparent;
+            color: #444;
+            border: 1px solid #222;
+            padding: 15px 40px;
+            font-size: 1rem;
             letter-spacing: 2px;
+            cursor: pointer;
+            transition: 0.2s;
+            box-shadow: 0 0 5px #000;
         }
 
-        p {
-            color: #888;
-            font-size: 0.9rem;
-            margin-bottom: 30px;
-            padding: 0 20px;
+        .btn-creepy:active {
+            background: #111;
+            color: #fff;
+            border-color: #555;
         }
 
-        .btn-start {
-            background: #0f0;
-            color: #000;
-            border: none;
-            padding: 20px 50px;
-            font-size: 1.2rem;
-            font-weight: bold;
-            border-radius: 50px;
-            box-shadow: 0 0 30px #0f0;
-            animation: pulse-btn 1.5s infinite;
-        }
-
-        @keyframes pulse-btn {
-            0% { transform: scale(1); box-shadow: 0 0 30px #0f0; }
-            50% { transform: scale(1.05); box-shadow: 0 0 50px #0f0; }
-            100% { transform: scale(1); box-shadow: 0 0 30px #0f0; }
-        }
-
-        /* LAYER 2: SCANNING (TEGANGAN) */
-        #scanning-screen {
+        /* LAYAR 2: SCANNING (GLITCH MODE) */
+        #scan-screen {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
             background: #000;
-            display: none; /* Hidden awalnya */
+            display: none;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             z-index: 20;
         }
 
-        .scan-text {
-            font-size: 2rem;
-            color: red;
-            font-weight: bold;
-            text-transform: uppercase;
-            animation: glitch-text 0.2s infinite;
+        .scan-line {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: rgba(255, 0, 0, 0.5);
+            box-shadow: 0 0 20px red;
+            opacity: 0.5;
+            animation: scan-move 2s infinite linear;
         }
 
-        /* LAYER 3: JUMP SCARE (LEDAKAN) */
+        @keyframes scan-move {
+            0% { top: 0%; opacity: 0; }
+            50% { opacity: 0.8; }
+            100% { top: 100%; opacity: 0; }
+        }
+
+        .status-text {
+            font-size: 1.5rem;
+            color: #800; /* Merah Gelap */
+            font-weight: bold;
+            animation: text-shake 0.1s infinite;
+        }
+
+        /* LAYAR 3: THE NIGHTMARE (JEBRETAN) */
         #scare-screen {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: #fff; /* Flash Putih Awal */
+            background: #000;
             display: none;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
             z-index: 999;
             overflow: hidden;
         }
 
-        .monster-face {
-            font-size: 80vw; /* Ukuran gede banget */
-            filter: invert(1) contrast(500%) grayscale(100%); /* Trik bikin jadi siluet seram */
-            animation: shake-monster 0.1s infinite;
-            margin-top: -20vh; /* Biar pas di tengah */
+        /* STROBE BACKGROUND */
+        .strobe-bg {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, #330000 0%, #000 90%);
+            animation: strobe 0.15s infinite;
         }
 
-        .blood-text {
+        /* HANTU SUPER SERAM */
+        .the-monster {
+            font-size: 120vw; /* SUPER BESAR */
+            /* Rahasia kekejaman: Kontras tinggi + Invert bikin emoji jadi siluet tajam */
+            filter: invert(1) contrast(400%) grayscale(100%) brightness(0.8);
+            animation: shake-hell 0.05s infinite;
+            position: relative;
+            z-index: 2;
+            transform-origin: center;
+        }
+
+        .warning-text {
             position: absolute;
-            color: #d00;
+            color: #fff;
             font-family: sans-serif;
             font-weight: 900;
-            font-size: 3rem;
+            font-size: 3.5rem;
             text-transform: uppercase;
-            text-shadow: 3px 3px 0 #fff;
-            animation: zoom-in 0.1s forwards;
+            text-align: center;
+            z-index: 3;
+            text-shadow: 0 0 20px red;
+            animation: zoom-glitch 0.1s infinite;
         }
 
         /* ANIMASI */
-        @keyframes glitch-text {
-            0% { transform: translate(2px, 2px); }
-            25% { transform: translate(-2px, -2px); }
-            50% { transform: translate(2px, -2px); }
-            75% { transform: translate(-2px, 2px); }
-            100% { transform: translate(2px, 2px); }
+        @keyframes flicker {
+            0% { opacity: 0.1; }
+            5% { opacity: 0.4; }
+            10% { opacity: 0.1; }
+            100% { opacity: 0.1; }
         }
 
-        @keyframes shake-monster {
-            0% { transform: translate(0, 0) scale(1.2); }
-            25% { transform: translate(-20px, 20px) scale(1.2); }
-            50% { transform: translate(20px, -20px) scale(1.2); }
-            75% { transform: translate(-20px, -20px) scale(1.2); }
-            100% { transform: translate(20px, 20px) scale(1.2); }
+        @keyframes text-shake {
+            0% { transform: translate(1px, 1px) skewX(0deg); }
+            25% { transform: translate(-1px, -2px) skewX(-10deg); }
+            50% { transform: translate(2px, 0px) skewX(10deg); }
+            75% { transform: translate(-1px, 1px) skewX(-5deg); }
+            100% { transform: translate(0, 0) skewX(0deg); }
         }
 
-        @keyframes zoom-in {
-            from { transform: scale(0.5); opacity: 0; }
-            to { transform: scale(1.5); opacity: 1; }
+        @keyframes shake-hell {
+            0% { transform: translate(0, 0) scale(1.5) rotate(0deg); }
+            25% { transform: translate(-30px, 30px) scale(1.5) rotate(-5deg); }
+            50% { transform: translate(30px, -30px) scale(1.5) rotate(5deg); }
+            75% { transform: translate(-30px, -30px) scale(1.5) rotate(-5deg); }
+            100% { transform: translate(0, 0) scale(1.5) rotate(0deg); }
+        }
+
+        @keyframes strobe {
+            0% { background: #000; }
+            50% { background: #1a0000; } /* Merah Sangat Gelap */
+            100% { background: #000; }
         }
     </style>
 </head>
 <body>
 
-    <!-- LAYAR 1: START SCREEN -->
+    <!-- LAYAR 1 -->
     <div id="start-screen">
-        <div class="radar-circle">
-            <div class="radar-sweep"></div>
-        </div>
-        <h1>GHOST RADAR</h1>
-        <p>Sensor AI mendeteksi energi gelap di sekitar lokasi Anda sekarang.</p>
-        <button class="btn-start" onclick="startRadar()">AKTIFKAN RADAR</button>
+        <div class="title-glitch">TEST VISI MALAM</div>
+        <p style="color: #444; font-size: 0.8rem; margin-bottom: 30px;">JANGAN LAKUKAN INI DI TEMPAT GELAP</p>
+        <button class="btn-creepy" onclick="startRitual()">MULAI</button>
     </div>
 
-    <!-- LAYAR 2: SCANNING -->
-    <div id="scanning-screen">
-        <div class="scan-text">SCANNING...</div>
-        <div class="scan-text" style="font-size: 1rem; margin-top: 10px; color: #fff;">Mendeteksi entitas...</div>
+    <!-- LAYAR 2 -->
+    <div id="scan-screen">
+        <div class="scan-line"></div>
+        <div class="status-text" id="status">MENGHUBUNGKAN...</div>
     </div>
 
-    <!-- LAYAR 3: JUMP SCARE -->
+    <!-- LAYAR 3 -->
     <div id="scare-screen">
-        <div class="monster-face">👹</div>
-        <div class="blood-text">MATIKAN!!!</div>
+        <div class="strobe-bg"></div>
+        <div class="warning-text">JANGAN LIHAT BELAKANG!</div>
+        <div class="the-monster">👻</div>
     </div>
 
     <script>
         const startScreen = document.getElementById('start-screen');
-        const scanScreen = document.getElementById('scanning-screen');
+        const scanScreen = document.getElementById('scan-screen');
         const scareScreen = document.getElementById('scare-screen');
+        const statusText = document.getElementById('status');
 
-        // Mencegah Back Button (Agak bandel)
+        // Anti Back
         history.pushState(null, null, location.href);
-        window.onpopstate = function () {
-            history.go(1);
-        };
+        window.onpopstate = function () { history.go(1); };
 
-        function startRadar() {
-            // 1. Masuk Mode Fullscreen (Usahakan)
+        function startRitual() {
+            // Fullscreen force
             try {
                 const elem = document.documentElement;
-                if (elem.requestFullscreen) { elem.requestFullscreen(); }
-                else if (elem.webkitRequestFullscreen) { elem.webkitRequestFullscreen(); }
-                else if (elem.msRequestFullscreen) { elem.msRequestFullscreen(); }
+                if (elem.requestFullscreen) elem.requestFullscreen();
+                else if (elem.webkitRequestFullscreen) elem.webkitRequestFullscreen();
             } catch(e) {}
 
-            // 2. Pindah Layar
             startScreen.style.display = 'none';
             scanScreen.style.display = 'flex';
 
-            // 3. Hitung mundur (Tegangkan dia dulu)
-            setTimeout(() => {
-                document.querySelector('#scanning-screen .scan-text').innerText = "WARNING!";
-                document.querySelector('#scanning-screen .scan-text').style.color = "#ff0000";
-                document.querySelector('#scanning-screen .scan-text').style.fontSize = "3rem";
-            }, 1500);
+            // Dengung Rendah (Horror Ambience)
+            playDroneSound();
 
-            // 4. JEBRET! (Random waktu antara 2.5 - 3.5 detik)
-            const randomDelay = 2500 + Math.random() * 1000;
-            setTimeout(triggerScare, randomDelay);
+            // Alur Cerita Tegang
+            setTimeout(() => { statusText.innerText = "DETEKSI GANGGUAN..."; }, 2000);
+            setTimeout(() => { statusText.innerText = "ADA ORANG DIBELAKANGMU!"; statusText.style.color = "#f00"; }, 4000);
+            
+            // BOOM! (Random 5-7 detik)
+            const randomDelay = 5000 + Math.random() * 2000;
+            setTimeout(jumpScare, randomDelay);
         }
 
-        function triggerScare() {
-            // Tampilkan Layar Seram
+        function jumpScare() {
             scanScreen.style.display = 'none';
             scareScreen.style.display = 'flex';
 
-            // Efek Flash Background
-            setTimeout(() => {
-                scareScreen.style.background = '#000'; // Berubah jadi hitam biar hantunya keliatan
-            }, 100);
-
-            // Mainkan Suara Teriakan (Synthesized)
-            playScream();
-
-            // Getar HP Sampai Jebol
+            // Getar HP Sampe Lemes
             if (navigator.vibrate) {
-                navigator.vibrate([500, 200, 500, 200, 1000]);
+                navigator.vibrate([100, 50, 100, 50, 200, 50, 500, 50, 1000]);
             }
+
+            // Suara Ledakan Setan
+            playDemonicScream();
         }
 
-        function playScream() {
+        // 1. SUARA DENGUNG (BIAR KETEGANGAN)
+        function playDroneSound() {
             const AudioContext = window.AudioContext || window.webkitAudioContext;
             const ctx = new AudioContext();
             const t = ctx.currentTime;
 
-            // SUARA 1: Noise Statis (Like Radio Rusak tapi Keras)
+            const osc = ctx.createOscillator();
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(50, t); // Frekuensi rendah
+            
+            // Filter biar kayak suara dengung "ngem"
+            const filter = ctx.createBiquadFilter();
+            filter.type = 'lowpass';
+            filter.frequency.value = 150;
+
+            const gain = ctx.createGain();
+            gain.gain.setValueAtTime(0.1, t); // Pelan tapi dalam
+            gain.gain.linearRampToValueAtTime(0.2, t + 4); // Naik pelan
+
+            osc.connect(filter);
+            filter.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start();
+            
+            // Simpan referensi biar bisa dimatiin pas jump scare (opsional, disini gue biarkan overlap biar kenceng)
+        }
+
+        // 2. SUARA TERIAKAN
+        function playDemonicScream() {
+            const AudioContext = window.AudioContext || window.webkitAudioContext;
+            const ctx = new AudioContext();
+            const t = ctx.currentTime;
+
+            // LAYER 1: White Noise Kenceng
             const bufferSize = ctx.sampleRate * 2;
             const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
             const data = buffer.getChannelData(0);
-            for (let i = 0; i < bufferSize; i++) {
-                data[i] = Math.random() * 2 - 1;
-            }
+            for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+            
             const noise = ctx.createBufferSource();
             noise.buffer = buffer;
             const noiseGain = ctx.createGain();
-            noiseGain.gain.setValueAtTime(0.8, t);
+            noiseGain.gain.setValueAtTime(1.0, t); // FULL VOLUME!
             noiseGain.gain.exponentialRampToValueAtTime(0.01, t + 3);
             noise.connect(noiseGain);
             noiseGain.connect(ctx.destination);
             noise.start();
 
-            // SUARA 2: Sawtooth High Pitch (Scream Effect)
+            // LAYER 2: Scream High Pitch
             const osc = ctx.createOscillator();
             osc.type = 'sawtooth';
-            osc.frequency.setValueAtTime(400, t);
-            osc.frequency.exponentialRampToValueAtTime(100, t + 0.5); // Turun drastis
-            osc.frequency.linearRampToValueAtTime(1500, t + 1.0); // Naik lagi
+            osc.frequency.setValueAtTime(800, t); // Mulai tinggi
+            osc.frequency.exponentialRampToValueAtTime(100, t + 0.1); // Drop
             
             const oscGain = ctx.createGain();
-            oscGain.gain.setValueAtTime(0.5, t);
+            oscGain.gain.setValueAtTime(0.8, t);
             oscGain.gain.linearRampToValueAtTime(0, t + 2.5);
 
             osc.connect(oscGain);
