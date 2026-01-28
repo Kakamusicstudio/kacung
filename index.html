@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>GHOST RADAR - DETEKSI HANTU</title>
+    <style>
+        /* RESET & LOCK SCREEN */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none; /* Gak bisa blok teks */
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            background-color: #000;
+            color: #0f0;
+            font-family: 'Courier New', Courier, monospace;
+            overflow: hidden; /* Gak bisa scroll */
+            touch-action: none; /* Gak bisa zoom/pan */
+        }
+
+        /* LAYER 1: HALAMAN DEPAN (HOOK) */
+        #start-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, #111 0%, #000 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            text-align: center;
+        }
+
+        .radar-circle {
+            width: 250px;
+            height: 250px;
+            border: 2px solid #0f0;
+            border-radius: 50%;
+            position: relative;
+            margin-bottom: 30px;
+            box-shadow: 0 0 20px #0f0;
+        }
+
+        .radar-sweep {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 50%;
+            height: 2px;
+            background: linear-gradient(90deg, rgba(0,255,0,0), rgba(0,255,0,1));
+            transform-origin: 0 0;
+            animation: radar-spin 2s linear infinite;
+        }
+
+        @keyframes radar-spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        h1 {
+            color: #0f0;
+            font-size: 2rem;
+            text-shadow: 0 0 10px #0f0;
+            margin-bottom: 10px;
+            letter-spacing: 2px;
+        }
+
+        p {
+            color: #888;
+            font-size: 0.9rem;
+            margin-bottom: 30px;
+            padding: 0 20px;
+        }
+
+        .btn-start {
+            background: #0f0;
+            color: #000;
+            border: none;
+            padding: 20px 50px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border-radius: 50px;
+            box-shadow: 0 0 30px #0f0;
+            animation: pulse-btn 1.5s infinite;
+        }
+
+        @keyframes pulse-btn {
+            0% { transform: scale(1); box-shadow: 0 0 30px #0f0; }
+            50% { transform: scale(1.05); box-shadow: 0 0 50px #0f0; }
+            100% { transform: scale(1); box-shadow: 0 0 30px #0f0; }
+        }
+
+        /* LAYER 2: SCANNING (TEGANGAN) */
+        #scanning-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            display: none; /* Hidden awalnya */
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 20;
+        }
+
+        .scan-text {
+            font-size: 2rem;
+            color: red;
+            font-weight: bold;
+            text-transform: uppercase;
+            animation: glitch-text 0.2s infinite;
+        }
+
+        /* LAYER 3: JUMP SCARE (LEDAKAN) */
+        #scare-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #fff; /* Flash Putih Awal */
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 999;
+            overflow: hidden;
+        }
+
+        .monster-face {
+            font-size: 80vw; /* Ukuran gede banget */
+            filter: invert(1) contrast(500%) grayscale(100%); /* Trik bikin jadi siluet seram */
+            animation: shake-monster 0.1s infinite;
+            margin-top: -20vh; /* Biar pas di tengah */
+        }
+
+        .blood-text {
+            position: absolute;
+            color: #d00;
+            font-family: sans-serif;
+            font-weight: 900;
+            font-size: 3rem;
+            text-transform: uppercase;
+            text-shadow: 3px 3px 0 #fff;
+            animation: zoom-in 0.1s forwards;
+        }
+
+        /* ANIMASI */
+        @keyframes glitch-text {
+            0% { transform: translate(2px, 2px); }
+            25% { transform: translate(-2px, -2px); }
+            50% { transform: translate(2px, -2px); }
+            75% { transform: translate(-2px, 2px); }
+            100% { transform: translate(2px, 2px); }
+        }
+
+        @keyframes shake-monster {
+            0% { transform: translate(0, 0) scale(1.2); }
+            25% { transform: translate(-20px, 20px) scale(1.2); }
+            50% { transform: translate(20px, -20px) scale(1.2); }
+            75% { transform: translate(-20px, -20px) scale(1.2); }
+            100% { transform: translate(20px, 20px) scale(1.2); }
+        }
+
+        @keyframes zoom-in {
+            from { transform: scale(0.5); opacity: 0; }
+            to { transform: scale(1.5); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- LAYAR 1: START SCREEN -->
+    <div id="start-screen">
+        <div class="radar-circle">
+            <div class="radar-sweep"></div>
+        </div>
+        <h1>GHOST RADAR</h1>
+        <p>Sensor AI mendeteksi energi gelap di sekitar lokasi Anda sekarang.</p>
+        <button class="btn-start" onclick="startRadar()">AKTIFKAN RADAR</button>
+    </div>
+
+    <!-- LAYAR 2: SCANNING -->
+    <div id="scanning-screen">
+        <div class="scan-text">SCANNING...</div>
+        <div class="scan-text" style="font-size: 1rem; margin-top: 10px; color: #fff;">Mendeteksi entitas...</div>
+    </div>
+
+    <!-- LAYAR 3: JUMP SCARE -->
+    <div id="scare-screen">
+        <div class="monster-face">👹</div>
+        <div class="blood-text">MATIKAN!!!</div>
+    </div>
+
+    <script>
+        const startScreen = document.getElementById('start-screen');
+        const scanScreen = document.getElementById('scanning-screen');
+        const scareScreen = document.getElementById('scare-screen');
+
+        // Mencegah Back Button (Agak bandel)
+        history.pushState(null, null, location.href);
+        window.onpopstate = function () {
+            history.go(1);
+        };
+
+        function startRadar() {
+            // 1. Masuk Mode Fullscreen (Usahakan)
+            try {
+                const elem = document.documentElement;
+                if (elem.requestFullscreen) { elem.requestFullscreen(); }
+                else if (elem.webkitRequestFullscreen) { elem.webkitRequestFullscreen(); }
+                else if (elem.msRequestFullscreen) { elem.msRequestFullscreen(); }
+            } catch(e) {}
+
+            // 2. Pindah Layar
+            startScreen.style.display = 'none';
+            scanScreen.style.display = 'flex';
+
+            // 3. Hitung mundur (Tegangkan dia dulu)
+            setTimeout(() => {
+                document.querySelector('#scanning-screen .scan-text').innerText = "WARNING!";
+                document.querySelector('#scanning-screen .scan-text').style.color = "#ff0000";
+                document.querySelector('#scanning-screen .scan-text').style.fontSize = "3rem";
+            }, 1500);
+
+            // 4. JEBRET! (Random waktu antara 2.5 - 3.5 detik)
+            const randomDelay = 2500 + Math.random() * 1000;
+            setTimeout(triggerScare, randomDelay);
+        }
+
+        function triggerScare() {
+            // Tampilkan Layar Seram
+            scanScreen.style.display = 'none';
+            scareScreen.style.display = 'flex';
+
+            // Efek Flash Background
+            setTimeout(() => {
+                scareScreen.style.background = '#000'; // Berubah jadi hitam biar hantunya keliatan
+            }, 100);
+
+            // Mainkan Suara Teriakan (Synthesized)
+            playScream();
+
+            // Getar HP Sampai Jebol
+            if (navigator.vibrate) {
+                navigator.vibrate([500, 200, 500, 200, 1000]);
+            }
+        }
+
+        function playScream() {
+            const AudioContext = window.AudioContext || window.webkitAudioContext;
+            const ctx = new AudioContext();
+            const t = ctx.currentTime;
+
+            // SUARA 1: Noise Statis (Like Radio Rusak tapi Keras)
+            const bufferSize = ctx.sampleRate * 2;
+            const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+            const data = buffer.getChannelData(0);
+            for (let i = 0; i < bufferSize; i++) {
+                data[i] = Math.random() * 2 - 1;
+            }
+            const noise = ctx.createBufferSource();
+            noise.buffer = buffer;
+            const noiseGain = ctx.createGain();
+            noiseGain.gain.setValueAtTime(0.8, t);
+            noiseGain.gain.exponentialRampToValueAtTime(0.01, t + 3);
+            noise.connect(noiseGain);
+            noiseGain.connect(ctx.destination);
+            noise.start();
+
+            // SUARA 2: Sawtooth High Pitch (Scream Effect)
+            const osc = ctx.createOscillator();
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(400, t);
+            osc.frequency.exponentialRampToValueAtTime(100, t + 0.5); // Turun drastis
+            osc.frequency.linearRampToValueAtTime(1500, t + 1.0); // Naik lagi
+            
+            const oscGain = ctx.createGain();
+            oscGain.gain.setValueAtTime(0.5, t);
+            oscGain.gain.linearRampToValueAtTime(0, t + 2.5);
+
+            osc.connect(oscGain);
+            oscGain.connect(ctx.destination);
+            osc.start();
+        }
+    </script>
+</body>
+</html>
