@@ -3,167 +3,326 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>LIVE</title>
-    <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
+    <title>SOULSYNC | Aura & Destiny</title>
+    <!-- Font Elegant & Mistis -->
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Playfair+Display:ital,wght@0,400;1,500&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
+    
     <style>
+        :root {
+            --gold: #d4af37;
+            --dark-bg: #050510;
+            --accent-purple: #2a0e45;
+            --text-glow: 0 0 10px rgba(212, 175, 55, 0.3);
+        }
+
         * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; }
-        body { background: #000; color: #fff; font-family: sans-serif; overflow: hidden; height: 100vh; width: 100vw; }
-        
-        /* Video Full Screen */
-        video { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); position: absolute; top: 0; left: 0; }
 
-        /* Tombol Host (Kanan Bawah) */
-        #btn-host {
-            position: absolute; bottom: 20px; right: 20px;
-            background: #ffaa00; color: #000;
-            border: none; padding: 15px 25px;
-            border-radius: 30px; font-weight: bold; font-size: 1rem;
-            z-index: 100; cursor: pointer;
-            box-shadow: 0 0 10px rgba(255,170,0,0.5);
-            animation: pulse 2s infinite;
+        body {
+            background-color: var(--dark-bg);
+            background-image: radial-gradient(circle at 50% 10%, #2a0e45 0%, #000000 100%);
+            color: #e0e0e0;
+            font-family: 'Montserrat', sans-serif;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            text-align: center;
         }
 
-        /* Tombol Sawer (Kiri Bawah) */
-        #btn-sawer {
-            position: absolute; bottom: 20px; left: 20px;
-            background: #118EEA; color: #fff;
-            border: none; padding: 15px 25px;
-            border-radius: 30px; font-weight: bold; font-size: 1rem;
-            z-index: 100; cursor: pointer;
-            display: flex; align-items: center; gap: 8px;
+        .container {
+            width: 90%;
+            max-width: 450px;
+            position: relative;
+            z-index: 10;
         }
 
-        /* Info Atas */
-        .info { position: absolute; top: 20px; left: 20px; background: rgba(0,0,0,0.5); padding: 5px 10px; border-radius: 10px; font-size: 0.8rem; }
+        /* HEADER ELEGAN */
+        h1 {
+            font-family: 'Cinzel', serif;
+            font-size: 2.5rem;
+            color: var(--gold);
+            letter-spacing: 4px;
+            margin-bottom: 5px;
+            text-shadow: var(--text-glow);
+        }
 
-        /* Modal Sawer */
-        #modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 200; display: none; align-items: center; justify-content: center; }
-        .card { background: #222; padding: 30px; border-radius: 20px; text-align: center; width: 80%; border: 1px solid #444; }
-        .no-dana { font-size: 2rem; font-weight: bold; color: #118EEA; margin: 10px 0; }
-        .tutup { margin-top: 20px; color: #888; text-decoration: underline; cursor: pointer; }
+        .subtitle {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.8rem;
+            color: #aaa;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-bottom: 40px;
+        }
 
-        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+        /* KAMERA MISTIS */
+        .camera-frame {
+            width: 250px;
+            height: 250px;
+            border-radius: 50%;
+            border: 2px solid rgba(212, 175, 55, 0.3);
+            position: relative;
+            margin: 0 auto 40px;
+            overflow: hidden;
+            box-shadow: 0 0 30px rgba(0,0,0,0.5), inset 0 0 20px rgba(212, 175, 55, 0.1);
+            background: #000;
+        }
+
+        /* Cincin berputar */
+        .camera-frame::after {
+            content: '';
+            position: absolute;
+            top: -10px; left: -10px; right: -10px; bottom: -10px;
+            border-radius: 50%;
+            border: 1px solid transparent;
+            border-top-color: var(--gold);
+            border-bottom-color: var(--gold);
+            animation: rotate 6s linear infinite;
+        }
+
+        video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transform: scaleX(-1); /* Mirror */
+        }
+
+        .scan-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(to bottom, transparent, rgba(212, 175, 55, 0.2), transparent);
+            transform: translateY(-100%);
+            display: none;
+        }
+
+        @keyframes rotate { 100% { transform: rotate(360deg); } }
+        @keyframes scan { 
+            0% { transform: translateY(-100%); opacity: 0; }
+            50% { opacity: 1; }
+            100% { transform: translateY(100%); opacity: 0; }
+        }
+
+        /* TOMBOL ELEGAN */
+        .btn {
+            width: 100%;
+            padding: 18px;
+            margin-bottom: 15px;
+            background: transparent;
+            border: 1px solid var(--gold);
+            color: var(--gold);
+            font-family: 'Cinzel', serif;
+            font-size: 1rem;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: 0.4s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn:hover {
+            background: var(--gold);
+            color: #000;
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.4);
+        }
+
+        .btn-fill {
+            background: var(--gold);
+            color: #000;
+            display: none;
+            box-shadow: 0 0 30px rgba(212, 175, 55, 0.5);
+        }
+
+        /* HASIL READING */
+        .reading-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 2px;
+            text-align: left;
+            display: none;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            margin-bottom: 20px;
+        }
+
+        .reading-title {
+            font-family: 'Cinzel', serif;
+            color: var(--gold);
+            font-size: 1.2rem;
+            border-bottom: 1px solid var(--gold);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+        }
+
+        .reading-content {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: #ddd;
+        }
+
+        .reading-content p { margin-bottom: 15px; }
+        .highlight { color: var(--gold); font-weight: bold; }
+
+        /* LOADING STATE */
+        .loading-status {
+            height: 20px;
+            font-size: 0.8rem;
+            color: var(--gold);
+            letter-spacing: 1px;
+            margin-top: 10px;
+            font-style: italic;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        /* MONETISASI */
+        .btn-premium {
+            border-color: #fff;
+            color: #fff;
+            margin-top: 20px;
+            background: rgba(255,255,255,0.05);
+            font-size: 0.9rem;
+        }
+        .btn-premium:hover {
+            background: #fff;
+            color: #000;
+        }
     </style>
 </head>
 <body>
 
-    <video id="v" autoplay playsinline muted></video>
+    <div class="container">
+        <h1>SOULSYNC</h1>
+        <p class="subtitle">AURA & DESTINY SCANNER</p>
 
-    <!-- INFO JUMLAH PENONTON (FAKE) -->
-    <div class="info" id="info">Menyiapkan Kamera...</div>
-
-    <!-- TOMBOL HOST (Hanya muncul untuk Kamu) -->
-    <button id="btn-host" style="display:none;" onclick="salinLink()">📋 SALIN LINK KE WA</button>
-
-    <!-- TOMBOL SAWER (Muncul untuk Semua) -->
-    <button id="btn-sawer" style="display:none;" onclick="bukaModal()">💸 SAWER</button>
-
-    <!-- MODAL SAWER -->
-    <div id="modal">
-        <div class="card">
-            <h3>Sawer Dana</h3>
-            <div class="no-dana" id="dana-num">08123456789</div>
-            <button style="padding:10px 20px; border-radius:10px; border:none; background:#118EEA; color:white; cursor:pointer;" onclick="copyDana()">Copy Nomor</button>
-            <div class="tutup" onclick="tutupModal()">Tutup</div>
+        <!-- Camera Frame -->
+        <div class="camera-frame">
+            <video id="webcam" autoplay playsinline muted></video>
+            <div class="scan-overlay" id="scan-line"></div>
         </div>
+
+        <div class="loading-status" id="status-text">Menginisialisasi sensor biometrik...</div>
+
+        <!-- TOMBOL -->
+        <button class="btn" id="btn-camera" onclick="startCamera()">1. POSISIKAN WAJAH</button>
+        <button class="btn btn-fill" id="btn-read" onclick="startReading()" style="display:none;">2. BACA AURA SEKARANG</button>
+
+        <!-- HASIL READING -->
+        <div class="reading-card" id="result-card">
+            <div class="reading-title">Analisis Energi & Destini</div>
+            <div class="reading-content" id="reading-text">
+                <!-- Text akan muncul disini -->
+            </div>
+        </div>
+
+        <button class="btn btn-premium" id="btn-dana" style="display:none;" onclick="openPremium()">💎 BUKA DETAIL LENGKAP</button>
     </div>
 
     <script>
-        // GANTI NOMOR DANA DISINI
-        const DANA = "08123456789";
-        let peer, myStream, peerId;
+        const video = document.getElementById('webcam');
+        const btnCamera = document.getElementById('btn-camera');
+        const btnRead = document.getElementById('btn-read');
+        const scanLine = document.getElementById('scan-line');
+        const statusText = document.getElementById('status-text');
+        const resultCard = document.getElementById('result-card');
+        const readingText = document.getElementById('reading-text');
+        const btnDana = document.getElementById('btn-dana');
 
-        const video = document.getElementById('v');
-        const btnHost = document.getElementById('btn-host');
-        const btnSawer = document.getElementById('btn-sawer');
-        const info = document.getElementById('info');
-        const modal = document.getElementById('modal');
-        const danaDisplay = document.getElementById('dana-num');
+        let myStream;
+        
+        // --- DATA RAMALAN (ZODIAK STYLE / DETAIL) ---
+        const zodiacReadings = [
+            // 1. Fokus Karir & Keuangan
+            {
+                title: "GEMINI & VIRGO ENERGY",
+                text: "Wajah Anda memancarkan aura intelektual yang sangat kuat. Namun, ada tanda-tanda kelelahan di area mata yang menunjukkan Anda terlalu banyak memikirkan hal-hal di luar kendili.<br><br><span class='highlight'>Karir:</span> Sebuah peluang yang ditawarkan bulan ini bukan sekadar kebetulan. Alam semesta sedang memposisikan Anda untuk mengambil alih kepemimpinan. Jangan ragu.<br><br><span class='highlight'>Keuangan:</span> Uang yang hilang sebelumnya akan kembali melalui jalur yang tidak terduga."
+            },
+            // 2. Fokus Cinta & Hubungan
+            {
+                title: "LIBRA & PISCES VIBES",
+                text: "Energi cinta dalam diri Anda sedang berada di titik puncak. Wajah Anda menunjukkan kepekaan yang mendalam, sering kali Anda merasa tidak dihargai padahal kontribusi Anda sangat besar.<br><br><span class='highlight'>Hubungan:</span> Seseorang dari masa lalu atau seseorang yang memiliki karakter yang sangat mirip Anda akan memasuki kehidupan. Ini bukan kebetulan.<br><br><span class='highlight'>Nasihat:</span> Pertahankan batasan emosional Anda. Jangan terlalu memberi kepada orang yang hanya mengambil."
+            },
+            // 3. Fokus Kesehatan & Inner Peace
+            {
+                title: "TAURUS & SCORPIO POWER",
+                text: "Analisis struktur wajah menunjukkan stabilitas yang luar biasa, namun ada perang batin yang Anda sembunyikan. Anda membutuhkan waktu sendiri.<br><br><span class='highlight'>Inner Peace:</span> Pertanyaan yang selama ini mengganggu tidur Anda akan menemukan jawabannya di penghujung bulan ini. Keputusan yang Anda ragukan sebenarnya sudah benar sejak awal.<br><br><span class='highlight'>Kesehatan:</span> Kurangi kebiasaan menahan emosi. Itu menghambat aliran energi positif ke tubuh Anda."
+            },
+            // 4. Fokus Umum / Keberuntungan
+            {
+                title: "LEO & SAGITTARIUS FIRE",
+                text: "Wajah Anda penuh dengan dinamika. Ini adalah tahun transisi besar bagi Anda. Anda merasa jenuh dengan rutinitas, dan jiwamu merindukan petualangan baru.<br><br><span class='highlight'>Destiny:</span> Anda diarahkan menuju jalur yang sama sekali baru. Banyak orang akan meragukan, tapi keyakinan Anda adalah satu-satunya senjata yang dibutuhkan.<br><br><span class='highlight'>Prediksi:</span> Bulan depan akan ada momen 'Click' dimana semua puzzle hidup Anda terkumpul menjadi satu gambaran indah."
+            }
+        ];
 
-        // 1. CEK URL
-        const params = new URLSearchParams(window.location.search);
-        const watchId = params.get('id'); // Kalau ada ?id=...
-
-        // GANTI NOMOR DANA DI TAMPILAN
-        danaDisplay.innerText = DANA;
-
-        // JIKA LINK PUNYA ID (Ini Penonton)
-        if (watchId) {
-            info.innerText = "Menghubungkan ke Host...";
-            join(watchId);
-        } 
-        // JIKA TIDAK ADA ID (Ini Host / Kamu)
-        else {
-            info.innerText = "🔴 LIVE";
-            info.style.background = "red";
-            btnSawer.style.display = "flex";
-            mulaiLive();
-        }
-
-        // --- FUNGSI HOST ---
-        async function mulaiLive() {
+        // 1. Start Camera
+        async function startCamera() {
             try {
-                myStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                myStream = await navigator.mediaDevices.getUserMedia({ video: true });
                 video.srcObject = myStream;
-                video.muted = true; // Kamu matiin suara sendiri
+                video.muted = true;
+                
+                btnCamera.style.display = 'none';
+                btnRead.style.display = 'block';
+                statusText.style.opacity = '1';
+                statusText.innerText = "Kamera aktif. Silakan lihat lensa untuk sinkronisasi.";
 
-                peer = new Peer();
-                peer.on('open', (id) => {
-                    peerId = id;
-                    btnHost.style.display = "block"; // Munculkan tombol copy
-                });
-
-                peer.on('call', (call) => {
-                    call.answer(myStream); // Jawab kalau ada yang masuk
-                    fakeViewers(); // Mulai fake counter biar keren
-                });
-
-            } catch (e) {
-                alert("Izin kamera ditolak: " + e);
+            } catch (err) {
+                alert("Izin kamera diperlukan untuk membaca Aura Anda.");
             }
         }
 
-        // --- FUNGSI PENONTON ---
-        function join(hostId) {
-            peer = new Peer();
-            video.muted = false; // Penonton dengar suara
+        // 2. Start Reading (Scanning Effect)
+        function startReading() {
+            btnRead.style.display = 'none';
+            scanLine.style.display = 'block';
+            scanLine.style.animation = "scan 2s infinite";
 
-            peer.on('open', () => {
-                const call = peer.call(hostId);
-                call.on('stream', (remoteStream) => {
-                    video.srcObject = remoteStream; // Tampilkan video host
-                    btnSawer.style.display = "flex"; // Penonton bisa sawer
-                });
-                call.on('close', () => {
-                    alert("Host keluar.");
-                    location.reload();
-                });
-            });
+            // Update Teks Status biar kayak beneran proses
+            const steps = [
+                "Menganalisis kontur wajah...",
+                "Mendeteksi frekuensi emosional...",
+                "Menyelaraskan dengan database planet...",
+                "Mengkalkulasi jalur nasib..."
+            ];
+
+            let step = 0;
+            const interval = setInterval(() => {
+                statusText.innerText = steps[step];
+                step++;
+                if (step >= steps.length) {
+                    clearInterval(interval);
+                    showResult();
+                }
+            }, 1000);
         }
 
-        // --- COPY LINK ---
-        function salinLink() {
-            const link = window.location.href + "?id=" + peerId;
-            navigator.clipboard.writeText(link);
-            alert("LINK TERSALIN!\nPaste sekarang di WhatsApp ya!");
+        // 3. Tampilkan Result (Typewriter Effect)
+        function showResult() {
+            scanLine.style.display = 'none';
+            scanLine.style.animation = 'none';
+            statusText.style.opacity = '0';
+
+            resultCard.style.display = 'block';
+            
+            // Ambil reading random
+            const data = zodiacReadings[Math.floor(Math.random() * zodiacReadings.length)];
+            
+            readingText.innerHTML = data.text;
+            
+            // Munculkan tombol sawer/premium
+            btnDana.style.display = 'block';
         }
 
-        // --- FAKE PENONTON ---
-        function fakeViewers() {
-            let count = 50;
-            setInterval(() => {
-                count++;
-                info.innerText = "🔴 LIVE • " + count + " Menonton";
-            }, 2000);
+        // 4. Open Premium (Dana)
+        function openPremium() {
+            // GANTI NOMOR DANA DISINI
+            window.open('https://link.dana.id/08123456789', '_blank');
         }
 
-        // --- SAWER ---
-        function bukaModal() { modal.style.display = 'flex'; }
-        function tutupModal() { modal.style.display = 'none'; }
-        function copyDana() { 
-            navigator.clipboard.writeText(DANA); 
-            alert("Nomor disalin!"); 
-        }
     </script>
 </body>
 </html>
