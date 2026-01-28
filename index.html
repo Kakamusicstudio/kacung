@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>LIVE SHOW - SAWER DANA</title>
-    <!-- Library PeerJS -->
+    <title>LIVE MUSIC SHOW</title>
     <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
@@ -12,7 +11,7 @@
         body {
             background-color: #000;
             color: #fff;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: sans-serif;
             height: 100vh;
             width: 100vw;
             overflow: hidden;
@@ -20,13 +19,10 @@
             flex-direction: column;
         }
 
-        /* --- VIDEO AREA (FULL SCREEN) --- */
+        /* VIDEO FULL SCREEN */
         #video-container {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            top: 0; left: 0; width: 100%; height: 100%;
             background: #111;
             z-index: 1;
         }
@@ -34,17 +30,15 @@
         video {
             width: 100%;
             height: 100%;
-            object-fit: cover; /* Full screen tanpa crop */
-            transform: scaleX(-1); /* Mirror effect */
+            object-fit: cover;
+            transform: scaleX(-1);
         }
 
-        /* --- TOP BAR (FAKE STATS) --- */
+        /* OVERLAY ATAS (FAKE VIEWER) */
         .top-bar {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            padding: 15px 20px;
+            top: 0; left: 0; width: 100%;
+            padding: 15px;
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
@@ -56,297 +50,253 @@
         .live-badge {
             background: #ff0000;
             color: #fff;
-            padding: 4px 10px;
+            padding: 4px 8px;
             border-radius: 4px;
-            font-weight: 800;
-            font-size: 0.75rem;
+            font-weight: bold;
+            font-size: 0.8rem;
             text-transform: uppercase;
-            animation: pulse-red 2s infinite;
-            display: inline-block;
         }
 
         .fake-viewers {
+            font-weight: bold;
+            font-size: 1.1rem;
             display: flex;
             align-items: center;
             gap: 5px;
-            font-size: 1rem;
-            font-weight: bold;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.8);
         }
 
-        .eye-icon {
-            width: 20px;
-            height: 20px;
-            fill: #fff;
-        }
-
-        /* --- BOTTOM SAWER BUTTON --- */
+        /* TOMBOL SAWER (BAWAH) */
         .sawer-container {
             position: absolute;
             bottom: 30px;
             left: 50%;
             transform: translateX(-50%);
-            z-index: 10;
             width: 90%;
+            z-index: 10;
             text-align: center;
         }
 
         .btn-sawer {
-            background: #118EEA; /* Warna Dana Biru */
+            background: #118EEA;
             color: white;
             border: none;
-            padding: 18px 40px;
+            padding: 15px;
             border-radius: 50px;
-            font-size: 1.2rem;
-            font-weight: bold;
             width: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            box-shadow: 0 4px 20px rgba(17, 142, 234, 0.5);
-            animation: bounce-btn 2s infinite;
+            font-size: 1.1rem;
+            font-weight: bold;
             cursor: pointer;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+            animation: bounce 2s infinite;
+            box-shadow: 0 4px 15px rgba(17, 142, 234, 0.5);
         }
 
-        /* --- CONTROL PANEL (START/MENU) --- */
-        #menu-overlay {
+        /* START SCREEN (MENU) */
+        #start-screen {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.95);
+            background: #000;
             z-index: 100;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
+            gap: 20px;
+        }
+
+        .btn-menu {
+            width: 80%;
+            max-width: 300px;
             padding: 20px;
-        }
-
-        #menu-overlay h1 {
-            color: #118EEA;
-            margin-bottom: 10px;
-            font-size: 2rem;
-            text-transform: uppercase;
-        }
-
-        .input-group {
-            width: 100%;
-            max-width: 300px;
-            margin-bottom: 20px;
-        }
-
-        input {
-            width: 100%;
-            padding: 15px;
-            border-radius: 10px;
-            border: 1px solid #444;
-            background: #222;
+            border: 2px solid #333;
+            background: #111;
             color: #fff;
-            font-size: 1rem;
-            text-align: center;
-            outline: none;
-        }
-
-        .btn-control {
-            width: 100%;
-            max-width: 300px;
-            padding: 15px;
-            border: none;
-            border-radius: 10px;
-            font-size: 1rem;
+            font-size: 1.2rem;
             font-weight: bold;
-            margin-bottom: 10px;
             cursor: pointer;
             text-transform: uppercase;
         }
 
-        .btn-start { background: #118EEA; color: white; }
-        .btn-copy { background: #333; color: white; display: none; }
+        .btn-host { border-color: #118EEA; background: rgba(17, 142, 234, 0.2); }
 
-        /* Animations */
-        @keyframes pulse-red {
-            0% { opacity: 1; }
-            50% { opacity: 0.5; }
-            100% { opacity: 1; }
+        /* MODAL SAWER */
+        #sawer-modal {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.95);
+            z-index: 200;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .card {
+            background: #222;
+            padding: 30px;
+            border-radius: 15px;
+            width: 85%;
+            text-align: center;
+            border: 1px solid #444;
         }
 
-        @keyframes bounce-btn {
+        .nomor {
+            font-size: 2rem;
+            font-weight: bold;
+            margin: 10px 0;
+            color: #118EEA;
+        }
+
+        .btn-copy { width: 100%; padding: 15px; margin-top: 10px; background: #444; border: none; color: white; font-size: 1rem; cursor: pointer;}
+        .btn-close { margin-top: 15px; background: none; border: none; color: #888; cursor: pointer; text-decoration: underline; }
+
+        @keyframes bounce {
             0%, 20%, 50%, 80%, 100% {transform: translateX(-50%) translateY(0);}
             40% {transform: translateX(-50%) translateY(-10px);}
             60% {transform: translateX(-50%) translateY(-5px);}
         }
-
         .hidden { display: none !important; }
     </style>
 </head>
 <body>
 
-    <!-- 1. AREA VIDEO FULL SCREEN -->
     <div id="video-container">
         <video id="my-video" autoplay playsinline muted></video>
     </div>
 
-    <!-- 2. OVERLAY ATAS (FAKE STATS) -->
-    <div class="top-bar" id="ui-top" style="display:none;">
+    <div class="top-bar hidden" id="ui-top">
         <div class="live-badge">● LIVE</div>
         <div class="fake-viewers">
-            <!-- SVG Icon Mata -->
-            <svg class="eye-icon" viewBox="0 0 24 24">
-                <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
-            </svg>
-            <span id="view-count">50 Watching</span>
+            <span>👀</span> <span id="view-count">100 Watching</span>
         </div>
     </div>
 
-    <!-- 3. TOMBOL SAWER (BAWAH) -->
-    <div class="sawer-container" id="ui-bottom" style="display:none;">
-        <button class="btn-sawer" onclick="openDana()">
-            <span>💸</span> SAWER VIA DANA
-        </button>
+    <div class="sawer-container hidden" id="ui-bottom">
+        <button class="btn-sawer" onclick="openSawer()">💸 SAWER KE DANA</button>
     </div>
 
-    <!-- 4. MENU KONTROL (MULAI) -->
-    <div id="menu-overlay">
-        <h1>🎤 LIVE SHOW</h1>
-        <p style="color:#aaa; margin-bottom:30px;">Nyanyi & Dapat Sawer</p>
-
-        <!-- Input Nomor Dana -->
-        <div class="input-group">
-            <input type="number" id="dana-input" placeholder="Nomor HP Dana Kamu">
+    <!-- MODAL SAWER -->
+    <div id="sawer-modal">
+        <div class="card">
+            <h3>NOMOR DANA</h3>
+            <div class="nomor" id="dana-display">Loading...</div>
+            <button class="btn-copy" onclick="copyNomor()">📋 Copy Nomor</button>
+            <button class="btn-copy" style="background:#118EEA; margin-top:5px;" onclick="bukaDana()">Buka Aplikasi Dana</button>
+            <div class="btn-close" onclick="closeSawer()">Tutup</div>
         </div>
+    </div>
 
-        <!-- Tombol Mulai (Host) -->
-        <button class="btn-control btn-start" onclick="startHosting()">MULAI LIVE</button>
-
-        <!-- Tombol Copy Link (Setelah Live) -->
-        <button class="btn-control btn-copy" id="btn-copy-link" onclick="copyShareLink()">📋 Copy Link WA</button>
-
-        <p style="margin-top:20px; font-size:0.8rem; color:#555;">Klik tombol Mulai, lalu Share Link.</p>
+    <!-- MENU UTAMA -->
+    <div id="start-screen">
+        <h1 style="color:#118EEA; text-transform:uppercase;">Live Music</h1>
+        <button class="btn-menu btn-host" onclick="startHosting()">Mulai Live (Host)</button>
+        <button class="btn-menu" onclick="startViewer()">Tonton (Viewer)</button>
     </div>
 
     <script>
+        // ========================================
+        // GANTI NOMOR DANA KAMU DI SINI !!!
+        // ========================================
+        const NOMOR_DANA = "08123456789"; 
+
         let peer;
         let myStream;
         let myPeerId;
-        let danaNumber = "08123456789"; // Default
-        
-        // --- 1. LOGIKA FAKE PENONTON (PENTING!) ---
-        function startFakeViewers() {
-            let count = 48; // Mulai dari 48
-            const viewEl = document.getElementById('view-count');
-            
-            // Setiap 1 detik, angka naik random 1-5 orang
-            setInterval(() => {
-                let increase = Math.floor(Math.random() * 5) + 1;
-                count += increase;
-                
-                // Kalau udah lewat 150, biarkan naik pelan aja
-                if(count > 150) count += 1;
+        const video = document.getElementById('my-video');
+        const startScreen = document.getElementById('start-screen');
+        const uiTop = document.getElementById('ui-top');
+        const uiBottom = document.getElementById('ui-bottom');
+        const sawerModal = document.getElementById('sawer-modal');
+        const danaDisplay = document.getElementById('dana-display');
 
-                // Format angka biar keren (pake K)
-                let display = count;
-                if(count > 1000) display = (count/1000).toFixed(1) + "k";
+        // Cek apakah ini link dari WA (ada parameter ?watch)
+        const urlParams = new URLSearchParams(window.location.search);
+        const watchId = urlParams.get('watch');
 
-                viewEl.innerText = display + " Watching";
-            }, 1000);
+        if (watchId) {
+            // Jika ada parameter watch, otomatis masuk mode Viewer
+            joinLive(watchId);
+        } else {
+            // Jika biasa, tampilkan menu
+            startScreen.style.display = 'flex';
         }
 
-        // --- 2. MULAI LIVE (HOST) ---
+        // --- MODE HOST (KAMU) ---
         async function startHosting() {
-            const danaInput = document.getElementById('dana-input').value;
-            if(!danaInput) return alert("Isi nomor Dana dulu bang!");
-            danaNumber = danaInput;
-
-            // Akses Kamera & Mic
             try {
                 myStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-                const video = document.getElementById('my-video');
                 video.srcObject = myStream;
-                video.muted = true; // Matikan suara sendiri
+                video.muted = true;
 
-                // Sembunyikan Menu
-                document.getElementById('menu-overlay').classList.add('hidden');
-                
-                // Tampilkan UI (Stats & Sawer)
-                document.getElementById('ui-top').style.display = 'flex';
-                document.getElementById('ui-bottom').style.display = 'block';
+                startScreen.style.display = 'none';
+                uiTop.style.display = 'flex';
+                uiBottom.style.display = 'block';
+                danaDisplay.innerText = NOMOR_DANA; // Set nomor dana
 
-                // Jalankan Counter Palsu
-                startFakeViewers();
+                startFakeViewer();
 
-                // Koneksi ke PeerJS Server
                 peer = new Peer();
-                
                 peer.on('open', (id) => {
                     myPeerId = id;
-                    alert("KAMU SUDAH LIVE!\nID Kamu: " + id + "\nTekan OK lalu Copy Link.");
-                    document.querySelector('.btn-start').style.display = 'none'; // Sembunyikan tombol mulai
-                    document.getElementById('btn-copy-link').style.display = 'block'; // Munculkan tombol copy
+                    const link = window.location.href.split('?')[0] + "?watch=" + id;
+                    alert("LIVE DIMULAI!\n\nLink Kamu:\n" + link + "\n\nCopy dan kirim ke WA sekarang.");
                 });
 
-                // Menerima Panggilan dari Penonton
                 peer.on('call', (call) => {
-                    call.answer(myStream); // Jawab panggilan dengan video kita
-                    
-                    // Simpan koneksi (opsional, untuk track siapa yang masuk)
-                    call.on('close', () => {
-                        // Bisa diisi logic kalau penonton keluar
-                    });
+                    call.answer(myStream);
                 });
 
-            } catch (err) {
-                alert("Gagal akses kamera: " + err);
+            } catch (e) {
+                alert("Izin kamera ditolak: " + e);
             }
         }
 
-        // --- 3. SHARE LINK ---
-        function copyShareLink() {
-            // Ambil URL halaman ini
-            const url = window.location.href.split('?')[0]; 
-            // Tambah parameter ID Peer
-            const shareLink = url + "?watch=" + myPeerId;
-            
-            navigator.clipboard.writeText(shareLink).then(() => {
-                alert("Link Berhasil di-Copy!\n\nPaste di WhatsApp Group teman-teman kamu sekarang.");
+        // --- MODE VIEWER (TEMAN / MANUAL) ---
+        function startViewer() {
+            const id = prompt("Masukkan ID Live Host:");
+            if (id) joinLive(id);
+        }
+
+        function joinLive(hostId) {
+            startScreen.style.display = 'none';
+            uiTop.style.display = 'flex';
+            uiBottom.style.display = 'block';
+            danaDisplay.innerText = NOMOR_DANA; // Penonton juga bisa sawer ke nomor yang sama
+
+            peer = new Peer();
+            video.muted = false; // Penonton dengar suara
+
+            peer.on('open', () => {
+                const call = peer.call(hostId);
+                call.on('stream', (remoteStream) => {
+                    video.srcObject = remoteStream;
+                });
+                call.on('close', () => {
+                    alert("Live berakhir.");
+                    location.reload();
+                });
             });
         }
 
-        // --- 4. SAWER DANA ---
-        function openDana() {
-            window.open(`https://link.dana.id/${danaNumber}`, '_blank');
+        // --- FUNGSI SAWER ---
+        function openSawer() { sawerModal.style.display = 'flex'; }
+        function closeSawer() { sawerModal.style.display = 'none'; }
+        
+        function copyNomor() {
+            navigator.clipboard.writeText(NOMOR_DANA);
+            alert("Nomor disalin!");
+        }
+        
+        function bukaDana() {
+            window.open(`https://link.dana.id/${NOMOR_DANA}`, '_blank');
         }
 
-        // --- 5. AUTO JOIN (UNTUK PENONTON) ---
-        window.onload = () => {
-            const urlParams = new URLSearchParams(window.location.search);
-            const watchId = urlParams.get('watch');
-
-            // Kalau ada parameter ?watch=ID, berarti ini Penonton
-            if (watchId) {
-                // Masuk mode tonton
-                document.getElementById('menu-overlay').classList.add('hidden');
-                document.getElementById('ui-top').style.display = 'flex';
-                document.getElementById('ui-bottom').style.display = 'block'; // Penonton juga bisa sawer
-
-                // Koneksi ke Host
-                peer = new Peer();
-                const video = document.getElementById('my-video');
-                video.muted = false; // Penonton dengar suara
-
-                peer.on('open', (id) => {
-                    const call = peer.call(watchId); // Panggil Host
-                    call.on('stream', (remoteStream) => {
-                        video.srcObject = remoteStream; // Tampilkan video Host
-                    });
-                    call.on('close', () => {
-                        alert("Live berakhir.");
-                        location.reload();
-                    });
-                });
-            }
-        };
+        // --- FUNGSI FAKE PENONTON ---
+        function startFakeViewer() {
+            let count = 100;
+            setInterval(() => {
+                count += Math.floor(Math.random() * 3) + 1;
+                document.getElementById('view-count').innerText = count + " Watching";
+            }, 1000);
+        }
     </script>
 </body>
 </html>
